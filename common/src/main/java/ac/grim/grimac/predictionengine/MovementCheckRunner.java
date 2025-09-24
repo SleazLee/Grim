@@ -522,7 +522,29 @@ public class MovementCheckRunner extends Check implements PositionCheck {
         } // If it isn't any of these cases, the player is on a mob they can't control and therefore is exempt
 
         // No, don't comment about the sqrt call.  It doesn't matter unless you run sqrt thousands of times a second.
-        double offset = player.predictedVelocity.vector.distance(player.actualMovement);
+        Vector3dm movementDelta = player.actualMovement.clone().subtract(player.predictedVelocity.vector);
+        double offset = movementDelta.length();
+
+        double horizontalDiff = Math.hypot(movementDelta.getX(), movementDelta.getZ());
+        double verticalDiff = Math.abs(movementDelta.getY());
+
+        double verticalReduction = 0;
+        if (player.pointThreeEstimator.isNearBubbleColumn() || player.uncertaintyHandler.isSteppingNearBubbleColumn) {
+            verticalReduction = Math.max(verticalReduction, 0.36);
+        }
+        if (player.pointThreeEstimator.isNearVerticalFlowingLiquid()) {
+            verticalReduction = Math.max(verticalReduction, 0.2);
+        }
+        if (player.pointThreeEstimator.isNearFluid() || player.wasTouchingWater || player.wasTouchingLava) {
+            verticalReduction = Math.max(verticalReduction, 0.1);
+        }
+
+        if (verticalReduction > 0 && verticalDiff > 0) {
+            double adjustedVertical = Math.max(0, verticalDiff - verticalReduction);
+            double fluidAdjustedOffset = Math.hypot(horizontalDiff, adjustedVertical);
+            offset = Math.min(offset, fluidAdjustedOffset);
+        }
+
         offset = player.uncertaintyHandler.reduceOffset(offset);
 
         if (player.packetStateData.tryingToRiptide != clientClaimsRiptide) {
