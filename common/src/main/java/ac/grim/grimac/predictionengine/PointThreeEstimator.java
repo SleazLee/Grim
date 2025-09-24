@@ -215,6 +215,18 @@ public class PointThreeEstimator {
                 || player.checkManager.getKnockbackHandler().isKnockbackPointThree() || player.checkManager.getExplosionHandler().isExplosionPointThree();
     }
 
+    public boolean isNearFluid() {
+        return isNearFluid;
+    }
+
+    public boolean isNearVerticalFlowingLiquid() {
+        return isNearVerticalFlowingLiquid;
+    }
+
+    public boolean isNearBubbleColumn() {
+        return isNearBubbleColumn;
+    }
+
     public void updatePlayerPotions(PotionType potion, Integer level) {
         if (potion == PotionTypes.LEVITATION) {
             maxPositiveLevitation = Math.max(level == null ? Integer.MIN_VALUE : level, maxPositiveLevitation);
