@@ -142,6 +142,9 @@ TimerLimit:
     # Bu, yalnızca bu ping eşiğini aşan meşru oyuncular için bazı geri dönüşlere neden olabilir.
     # Devre dışı bırakmak için -1 yazın
     ping-abuse-limit-threshold: 1000
+    # Number of ticks of timer balance we forgive while a player is climbing.
+    # Lets legitimate ladder/vine movement absorb small bursty packets without creating violations.
+    climb-grace-ticks: 3
 
 NegativeTimer:
     # Uyarı vermeye başlamadan önce hareket halindeyken kaybedilen milisaniye sayısı
