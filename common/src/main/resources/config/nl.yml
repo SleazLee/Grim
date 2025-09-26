@@ -142,6 +142,9 @@ TimerLimit:
     # Kan wat tegenslag veroorzaken voor legitieme spelers, maar alleen als ze boven deze ping drempel zitten.
     # -1 om uit te schakelen
     ping-abuse-limit-threshold: 1000
+    # Number of ticks of timer balance we forgive while a player is climbing.
+    # Lets legitimate ladder/vine movement absorb small bursty packets without creating violations.
+    climb-grace-ticks: 3
 
 NegativeTimer:
     # Aantal milliseconden dat verloren gaat tijdens het bewegen voordat we moeten beginnen met flaggen

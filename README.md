@@ -62,6 +62,12 @@ information.
 3. `./gradlew build`
 4. The final jars will compile into the `<platform>/build/libs` folders
 
+## Recent False Positive Fixes
+
+- **Simulation – entity pressure on partial blocks.** Players who idle on short blocks such as chests or hoppers while clearing mob spawners now receive extra vertical lenience whenever nearby entities nudge them. The prediction engine checks the fractional height of the supporting surface and cushions the allowed offset based on the number of colliding entities, preventing the old Simulation spam while keeping normal movement strict.【F:common/src/main/java/ac/grim/grimac/predictionengine/predictions/PredictionEngine.java†L535-L546】
+- **TimerLimit – bursty ladder climbing.** Legitimate ladder and vine climbs can bunch several movement packets together, especially on high latency servers. TimerLimit now recognises active climbing and burns a configurable grace window (`climb-grace-ticks`, default 3) before flagging, letting players continue upward without unnecessary setbacks while still punishing sustained timer abuse.【F:common/src/main/java/ac/grim/grimac/checks/impl/timer/TimerLimit.java†L12-L80】【F:common/src/main/resources/config/en.yml†L140-L147】
+- **Simulation – fluid transitions (from SleazLee’s earlier PR).** The previous Simulation update reduced offsets when the player is interacting with bubble columns, flowing liquids, or shallow fluid contact by trimming the vertical component before comparison. This change specifically targets the jitter that appeared when swapping between water, lava, and dry ground, which had caused repeated Simulation alerts before the fix.【F:common/src/main/java/ac/grim/grimac/predictionengine/MovementCheckRunner.java†L524-L546】
+
 ## Grim Supremacy
 
 What makes Grim stand out against other anticheats?

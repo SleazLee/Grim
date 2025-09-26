@@ -538,6 +538,14 @@ public class PredictionEngine {
         double additionHorizontal = player.uncertaintyHandler.getOffsetHorizontal(vector);
         double additionVertical = player.uncertaintyHandler.getVerticalOffset(vector);
 
+        if (avgColliding > 0) {
+            double supportFraction = player.boundingBox.minY - Math.floor(player.boundingBox.minY);
+            if (supportFraction > 1E-6 && supportFraction < 1 - 1E-6) {
+                double verticalLenience = Math.min(0.06, 0.01 + 0.01 * avgColliding);
+                additionVertical += verticalLenience;
+            }
+        }
+
         double pistonX = Collections.max(player.uncertaintyHandler.pistonX);
         double pistonY = Collections.max(player.uncertaintyHandler.pistonY);
         double pistonZ = Collections.max(player.uncertaintyHandler.pistonZ);

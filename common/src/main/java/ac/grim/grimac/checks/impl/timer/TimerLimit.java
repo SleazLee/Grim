@@ -11,6 +11,7 @@ public class TimerLimit extends Timer {
 
     // At what ping should we start to limit the balance advantage? (nanos)
     private long limitAbuseOverPing;
+    private long climbingGraceWindow;
 
     public TimerLimit(GrimPlayer player) {
         super(player);
@@ -19,7 +20,12 @@ public class TimerLimit extends Timer {
     @Override
     public void doCheck(final PacketReceiveEvent event) {
         // 1:1 with Timer minus cancelling the packet
-        if (timerBalanceRealTime > System.nanoTime()) {
+        long now = System.nanoTime();
+        if (timerBalanceRealTime > now) {
+            if (applyClimbGrace(now)) {
+                limitFallBehind();
+                return;
+            }
             // If timer check already flagged, don't flag.
             if (!event.isCancelled()) {
                 if (flagAndAlert() && shouldSetback()) {
@@ -32,6 +38,24 @@ public class TimerLimit extends Timer {
         }
 
         limitFallBehind();
+    }
+
+    private boolean applyClimbGrace(long now) {
+        if (climbingGraceWindow <= 0) {
+            return false;
+        }
+
+        if (!(player.isClimbing || player.pointThreeEstimator.isNearClimbable())) {
+            return false;
+        }
+
+        long lead = timerBalanceRealTime - now;
+        if (lead <= 0 || lead > climbingGraceWindow) {
+            return false;
+        }
+
+        timerBalanceRealTime = Math.max(timerBalanceRealTime - 50_000_000L, now);
+        return true;
     }
 
     @Override
@@ -51,5 +75,7 @@ public class TimerLimit extends Timer {
         if (limitAbuseOverPing != -1) {
             limitAbuseOverPing *= (long) 1e6;
         }
+        double climbGraceTicks = config.getDoubleElse(getConfigName() + ".climb-grace-ticks", 3.0);
+        climbingGraceWindow = climbGraceTicks <= 0 ? 0 : (long) (climbGraceTicks * 50e6);
     }
 }
